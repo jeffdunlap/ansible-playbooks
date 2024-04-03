@@ -13,14 +13,12 @@
         name: chocolatey
         state: present
 
-
     # Install Applications from public chocolatey repository
     - name: Install Base Applications
       chocolatey.chocolatey.win_chocolatey:
         name:
           - powershell-core
           - googlechrome
-          - spacesniffer
           - sysinternals
           - 7zip.install
           - notepadplusplus.install
@@ -38,6 +36,32 @@
       ansible.windows.win_file:
         path: C:\Temp
         state: directory
+
+    # Disable Un-Needed Services
+    - name: Disable Xbox Live Auth Manager
+      ansible.windows.win_service:
+        name: "Xbox Live Auth Manager"
+        start_mode: disabled
+        state: stopped
+
+    - name: Disable Xbox Live Game Save
+      ansible.windows.win_service:
+        name: "Xbox Live Game Save"
+        start_mode: disabled
+        state: stopped
+
+    - name: Disable Xbox Live Networking Service
+      ansible.windows.win_service:
+        name: "Xbox Live Networking Service"
+        start_mode: disabled
+        state: stopped
+
+    # Enable services that are wanted
+    - name: Enable Remote Registry
+      ansible.windows.win_service:
+        name: "Remote Registry"
+        start_mode: auto
+        state: started
 
     # Domain Join
     - name: Join server to the domain
