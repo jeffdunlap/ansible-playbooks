@@ -1,0 +1,56 @@
+---
+- name: Server Configuration
+  hosts: all
+
+  tasks:
+    # Import secrets from Ansible Vault
+    - name: Import Secrets
+      ansible.builtin.include_vars:
+        file: vars/secrets.yml
+
+    - name: Install chocolatey
+      chocolatey.chocolatey.win_chocolatey:
+        name: chocolatey
+        state: present
+
+
+    # Install Applications from public chocolatey repository
+    - name: Install Base Applications
+      chocolatey.chocolatey.win_chocolatey:
+        name:
+          - powershell-core
+          - googlechrome
+          - spacesniffer
+          - sysinternals
+          - 7zip.install
+          - notepadplusplus.install
+          - vscode
+        state: latest
+
+    # Update all applications installed via chocolatey
+    - name: Update Installed Applications
+      chocolatey.chocolatey.win_chocolatey:
+        name: all
+        state: latest
+
+    # Create C:\Temp
+    - name: Create Temp Folder
+      ansible.windows.win_file:
+        path: C:\Temp
+        state: directory
+
+    # Domain Join
+    - name: Join server to the domain
+      ansible.windows.win_domain_membership:
+        dns_domain_name: "Dunlapistan"
+        hostname: "{{ inventory_hostname }}"
+        domain_admin_user: "{{ domain_join_user }}"
+        domain_admin_password: "{{ domain_join_pw }}"
+        domain_ou_path: "OU=Servers,DC=Dunlapistan,DC=com"
+        state: domain
+      register: domain_state
+
+    # Post Domain-Join Restart
+    - name: Restart after domain join
+      ansible.windows.win_reboot:
+      when: domain_state.reboot_required

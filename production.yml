@@ -1,0 +1,8 @@
+---
+servers:
+  hosts:
+    appsrv02.dunlapistan.com
+
+clients:
+  hosts:
+    client02.dunlapistan.com
