@@ -2,6 +2,11 @@
 - name: Server Configuration
   hosts: all
 
+  vars:
+    ansible_connection: "winrm"
+    ansible_winrm_server_cert_validation: "ignore"
+    ansible_user: "ansible-admin"
+
   tasks:
     # Import secrets from Ansible Vault
     - name: Import Secrets
@@ -63,18 +68,12 @@
         start_mode: auto
         state: started
 
-    # Domain Join
-    - name: Join server to the domain
-      ansible.windows.win_domain_membership:
-        dns_domain_name: "Dunlapistan"
+    - name: Join the domain
+      microsoft.ad.membership:
+        dns_domain_name: "dunlapistan.com"
         hostname: "{{ inventory_hostname }}"
         domain_admin_user: "{{ domain_join_user }}"
         domain_admin_password: "{{ domain_join_pw }}"
         domain_ou_path: "OU=Servers,DC=Dunlapistan,DC=com"
         state: domain
-      register: domain_state
-
-    # Post Domain-Join Restart
-    - name: Restart after domain join
-      ansible.windows.win_reboot:
-      when: domain_state.reboot_required
+        reboot: true

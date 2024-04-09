@@ -2,3 +2,4 @@
 collections:
    - chocolatey.chocolatey
    - community.windows
+   - microsoft.ad.membership

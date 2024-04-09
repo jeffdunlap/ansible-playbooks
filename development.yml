@@ -1,8 +1,8 @@
 ---
 servers:
   hosts:
-    appsrv01.dunlapistan.com
+    # appsrv01.dunlapistan.com
 
-clients:
+win_clients:
   hosts:
-    client01.dunlapistan.com
+   192.168.152.126 
