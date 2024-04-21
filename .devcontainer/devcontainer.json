@@ -13,7 +13,7 @@
     "forwardPorts": [],
     "image": "jeffdunlap/vscode-dev-container:latest",
     "mounts": [
-        "source=${localEnv:USERPROFILE}/.ssh,target=/home/vscode/.ssh,type=bind",
+        "source=${localEnv:USERPROFILE}/.ssh/,target=/home/vscode/.ssh,type=bind",
         "source=${localEnv:USERPROFILE}/.gitconfig,target=/home/vscode/.gitconfig,type=bind"
     ],
     "remoteUser": "vscode",

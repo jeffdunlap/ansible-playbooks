@@ -23,11 +23,8 @@
       chocolatey.chocolatey.win_chocolatey:
         name:
           - powershell-core
-          - googlechrome
-          - sysinternals
           - 7zip.install
           - notepadplusplus.install
-          - vscode
         state: latest
 
     # Update all applications installed via chocolatey
@@ -71,7 +68,7 @@
     - name: Join the domain
       microsoft.ad.membership:
         dns_domain_name: "dunlapistan.com"
-        hostname: "{{ inventory_hostname }}"
+        hostname: "{{ ansible_facts['hostname'] }}"
         domain_admin_user: "{{ domain_join_user }}"
         domain_admin_password: "{{ domain_join_pw }}"
         domain_ou_path: "OU=Servers,DC=Dunlapistan,DC=com"
