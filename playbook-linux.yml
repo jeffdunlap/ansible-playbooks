@@ -1,0 +1,36 @@
+---
+- name: Server Configuration
+  hosts: all
+
+  vars:
+    ansible_connection: "winrm"
+    ansible_winrm_server_cert_validation: "ignore"
+    ansible_user: "ansible-admin"
+
+- tasks:
+    # Import secrets from Ansible Vault
+    - name: Import Secrets
+      ansible.builtin.include_vars:
+        file: vars/secrets.yml
+
+    - name: Upgrade the OS (apt-get dist-upgrade)
+      ansible.builtin.apt:
+        upgrade: dist
+
+    - name: Update all packages to their latest version
+      ansible.builtin.apt:
+        name: "*"
+        state: latest
+
+    - name: Upgrade the OS (apt-get dist-upgrade)
+      ansible.builtin.apt:
+        upgrade: dist
+        - name: Install Packages
+          ansible.builtin.apt:
+            pkg:
+              - python3
+              - python3-pip
+              - ansible
+              - ansible-lint
+            state: latest
+            update_cache: true
