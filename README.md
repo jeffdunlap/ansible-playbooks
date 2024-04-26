@@ -14,10 +14,14 @@ https://www.redhat.com/sysadmin/ansible-playbooks-secrets
 
 ## Usage
 ### Windows Playbook
+``` Bash
 ansible-playbook playbook-windows.yml -i development.yml --ask-pass --ask-vault-pass
+```
 
 ### Linux Playbook
+``` Bash
 ansible-playbook playbook-linux.yml -i development.yml --ask-pass --ask-become-pass --ask-vault-pass
+```
 
 ## References
 I want to send a huge thank you to some of the blog posts that helped me pull all of this together.
