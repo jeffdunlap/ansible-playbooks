@@ -1,0 +1,9 @@
+- name: Run Ubuntu Role
+  ansible.builtin.include_role:
+    name: ubuntu
+  when: ansible_os_family == 'Debian'
+
+- name: Run Red Hat Role
+  ansible.builtin.include_role:
+    name: rhel
+  when: ansible_os_family == 'RedHat'

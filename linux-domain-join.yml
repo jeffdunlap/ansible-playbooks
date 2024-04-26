@@ -1,0 +1,95 @@
+---
+- hosts: all
+  roles:
+    - common
+    - active_directory
+
+  become: true
+  vars:
+    AD_Domain: DUNLAPISTAN.COM
+    AD_Domain_alt: dunlapistan.com
+    Join_OU: DC=dunlapistan,DC=com
+    SRV_ADM_GRP_OU: OU=groups,DC=dunlapistan,DC=com
+    username: "{{ ad_admin_username }}"
+    password: "{{ ad_admin_password }}"
+    ssh_sftp_location: "{{ sftp_server_location }}"
+
+  tasks:
+  - name: Checking if packages required to join AD realm are present
+    ansible.builtin.package:
+      name: "{{ active_directory_pkgs }}"
+      state: latest
+
+  - name: Configuring krb5.conf
+    ansible.builtin.template:
+      src: krb5.conf.j2
+      dest: /etc/krb5.conf
+      owner: root
+      group: root
+      mode: "0644"
+
+  - name: Create /etc/krb5.conf.d
+    ansible.builtin.file:
+      path: /etc/krb5.conf.d
+      state: directory
+      owner: root
+      group: root
+      mode: "0755"
+
+  - name: Joining the AD realm (creating AD computer account and updating /etc/krb5.keytab)
+    ansible.builtin.shell: echo '{{ password }}' | adcli join --stdin-password {{ AD_Domain }} -U {{ username }} --domain-ou={{ Join_OU }}
+
+  - name: Creating AD server admin group
+    ansible.builtin.shell: echo '{{ password }}' | adcli create-group ADMIN_{{ ansible_hostname }} --stdin-password --domain={{ AD_Domain }} --description="Admin group for {{ ansible_hostname }} server" --domain-ou={{ SRV_ADM_GRP_OU }} -U {{ username }}
+    register: group_result
+    failed_when: group_result.rc != 0 and group_result.rc != 5
+
+  - name: Configuring sssd.conf
+    ansible.builtin.template:
+      src: sssd.conf.j2
+      dest: /etc/sssd/sssd.conf
+      owner: root
+      group: root
+      mode: "0600"
+
+  - name: Configuring sudoers
+    ansible.builtin.template:
+      src: ADsudoers.j2
+      dest: /etc/sudoers.d/ADsudoers
+      owner: root
+      group: root
+      mode: "0440"
+
+  - name: Configuring /etc/ssh/sshd_config
+    ansible.builtin.template:
+      src: sshd_config.j2
+      dest: /etc/ssh/sshd_config
+      owner: root
+      group: root
+      mode: "0600"
+
+  - name: Configuring PAM/SSHD to use SSSD on RHEL
+    ansible.builtin.shell: authselect select sssd with-mkhomedir --force
+    when: ansible_os_family == 'RedHat'
+
+  - name: Configuring PAM to enable mkhomedir on Ubuntu
+    ansible.builtin.shell: pam-auth-update --enable mkhomedir
+    when: ansible_os_family == 'Debian'
+
+  - name: Enabling oddjobd service
+    ansible.builtin.systemd:
+      name: oddjobd.service
+      enabled: true
+      state: started
+
+  - name: Restarting SSSD
+    ansible.builtin.systemd:
+      name: sssd
+      enabled: true
+      state: restarted
+
+  - name: Restarting SSHD
+    ansible.builtin.systemd:
+      name: sshd
+      enabled: true
+      state: restarted

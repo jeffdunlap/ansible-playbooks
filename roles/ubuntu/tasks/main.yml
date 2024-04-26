@@ -1,0 +1,6 @@
+- name: Import Variables
+  ansible.builtin.include_vars: main.yml
+
+- name: Import AD Packages
+  ansible.builtin.include_vars: ad-packages.yml
+  when: "'active_directory' in role_names"

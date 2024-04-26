@@ -1,0 +1,2 @@
+- name: Load Variables
+  ansible.builtin.include_vars: credentials.yml

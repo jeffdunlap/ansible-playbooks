@@ -3,7 +3,6 @@ servers:
   hosts:
     # appsrv01.dunlapistan.com
 
-win_clients:
+linux_clients:
   hosts:
-    192.168.152.126:
-    192.168.152.78:
+    192.168.122.65:

@@ -1,0 +1,12 @@
+active_directory_pkgs:
+ - sssd
+ - sssd-tools
+ - realmd
+ - oddjob
+ - oddjob-mkhomedir
+ - adcli
+ - samba-common
+ - krb5-user
+ - libnss-ldap
+ - libpam-ldap
+ - ldap-utils
